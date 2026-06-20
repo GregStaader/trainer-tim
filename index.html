@@ -3,99 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trainer Tim - Running Coaching</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            padding: 60px 40px;
-            text-align: center;
-            max-width: 600px;
-        }
-        
-        h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 30px;
-        }
-        
-        .description {
-            background: #f8f9fa;
-            padding: 20px;
-            border-left: 4px solid #667eea;
-            text-align: left;
-            border-radius: 5px;
-            margin: 30px 0;
-        }
-        
-        .cta {
-            background: #667eea;
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s;
-        }
-        
-        .cta:hover {
-            background: #764ba2;
-        }
-        
-        .status {
-            margin-top: 30px;
-            padding: 15px;
-            background: #d4edda;
-            color: #155724;
-            border-radius: 5px;
-            border: 1px solid #c3e6cb;
-        }
-    </style>
+    <title>Trainer Tim — Trail Running Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛰️</text></svg>">
 </head>
 <body>
-    <div class="container">
-        <h1>🏃 Trainer Tim</h1>
-        <p class="subtitle">Running Coaching & Performance Training</p>
-        
-        <div class="description">
-            <h2 style="margin-bottom: 15px;">Welcome!</h2>
-            <p>Professional running coaching and athletic performance training. Whether you're training for your first 5K or preparing for a marathon, I'm here to help you achieve your goals.</p>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-icon">⛰️</span>
+                <h1 class="logo-text">Trainer Tim</h1>
+            </div>
+            <nav class="nav-tabs" id="navTabs">
+                <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+                <button class="nav-tab" data-view="activities">Activities</button>
+                <button class="nav-tab" data-view="stats">Stats</button>
+            </nav>
+            <div class="profile-switcher" id="profileSwitcher">
+                <button class="profile-btn active" data-athlete="greg">
+                    <span class="avatar-circle">G</span>
+                    <span class="profile-name">Greg</span>
+                </button>
+                <button class="profile-btn" data-athlete="son">
+                    <span class="avatar-circle">S</span>
+                    <span class="profile-name">Son</span>
+                </button>
+            </div>
         </div>
-        
-        <button class="cta">Get Started</button>
-        <button class="cta" style="background: #764ba2;">Contact Me</button>
-        
-        <div class="status">
-            <strong>✅ Site is live!</strong><br>
-            <small>tim.cape-agent.com - Powered by Cape York Digital</small>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Connect Prompt -->
+        <section class="connect-prompt" id="connectPrompt">
+            <div class="connect-card">
+                <div class="connect-icon">🔗</div>
+                <h2>Connect Your Strava</h2>
+                <p>Link your Strava account to see your running data, track progress, and get coaching insights from Trainer Tim.</p>
+                <button class="btn-connect" id="btnConnect">
+                    <span class="strava-icon">⚡</span>
+                    Connect with Strava
+                </button>
+                <p class="connect-note">We only request read access to your activities. Your data stays private.</p>
+            </div>
+        </section>
+
+        <!-- Dashboard View -->
+        <section class="view dashboard-view" id="dashboardView">
+            <div class="stat-cards-grid" id="statCardsGrid">
+                <!-- Populated by JS -->
+            </div>
+            <div class="section-header">
+                <h2>Recent Activities</h2>
+                <span class="cached-badge hidden" id="cachedBadge">📦 Cached</span>
+            </div>
+            <div class="activity-list" id="recentActivities">
+                <!-- Populated by JS -->
+            </div>
+            <div class="loading-spinner hidden" id="dashboardSpinner">
+                <div class="spinner"></div>
+                <p>Loading your data…</p>
+            </div>
+            <div class="error-banner hidden" id="dashboardError">
+                <p class="error-message"></p>
+                <button class="btn-retry">Retry</button>
+            </div>
+        </section>
+
+        <!-- Activities View -->
+        <section class="view activities-view hidden" id="activitiesView">
+            <div class="section-header">
+                <h2>All Activities</h2>
+                <div class="filter-bar">
+                    <select class="filter-select" id="activityTypeFilter">
+                        <option value="all">All Types</option>
+                        <option value="Run">Run</option>
+                        <option value="TrailRun">Trail Run</option>
+                        <option value="Walk">Walk</option>
+                        <option value="Hike">Hike</option>
+                    </select>
+                </div>
+            </div>
+            <div class="activity-list" id="allActivities">
+                <!-- Populated by JS -->
+            </div>
+            <div class="load-more-container" id="loadMoreContainer">
+                <button class="btn-load-more" id="btnLoadMore">Load More Activities</button>
+            </div>
+            <div class="loading-spinner hidden" id="activitiesSpinner">
+                <div class="spinner"></div>
+                <p>Loading activities…</p>
+            </div>
+            <div class="error-banner hidden" id="activitiesError">
+                <p class="error-message"></p>
+                <button class="btn-retry">Retry</button>
+            </div>
+            <div class="empty-state hidden" id="activitiesEmpty">
+                <p>No activities found. Get out there and hit the trails! 🏃</p>
+            </div>
+        </section>
+
+        <!-- Stats View -->
+        <section class="view stats-view hidden" id="statsView">
+            <div class="stats-period-tabs" id="statsPeriodTabs">
+                <button class="period-tab active" data-period="weekly">Weekly</button>
+                <button class="period-tab" data-period="monthly">Monthly</button>
+                <button class="period-tab" data-period="yearly">Yearly</button>
+            </div>
+            <div class="stat-cards-grid" id="statsCardsGrid">
+                <!-- Populated by JS -->
+            </div>
+            <div class="chart-container">
+                <h3>Distance Trend</h3>
+                <canvas id="trendChart" width="600" height="300"></canvas>
+            </div>
+            <div class="loading-spinner hidden" id="statsSpinner">
+                <div class="spinner"></div>
+                <p>Crunching numbers…</p>
+            </div>
+            <div class="error-banner hidden" id="statsError">
+                <p class="error-message"></p>
+                <button class="btn-retry">Retry</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Activity Detail Modal -->
+    <div class="modal-overlay hidden" id="activityModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-body" id="modalBody">
+                <!-- Populated by JS -->
+            </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Trainer Tim &mdash; Trail Running Coaching Dashboard</p>
+        <p class="footer-sub">Powered by Strava API &middot; Built for the trails</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="app.js"></script>
 </body>
 </html>
